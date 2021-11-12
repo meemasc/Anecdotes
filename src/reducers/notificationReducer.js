@@ -1,8 +1,14 @@
 
-export const likeNotification = (notification) => {
-  return {
-    type: 'LIKE_NOTIFICATION',
-    data: { notification }
+export const setNotification = (notification, time) => {
+  return async (dispatch) => {
+    dispatch({
+      type: 'SET_NOTIFICATION',
+      data: notification
+    })
+    setTimeout(() => 
+      dispatch({
+        type: 'RESET_NOTIFICATION'
+      }), time*1000)
   }
 }
 
@@ -15,8 +21,8 @@ export const resetNotification = () => {
 const notificationReducer = (state = null, action) => {
 
   switch(action.type) {
-    case 'LIKE_NOTIFICATION':
-      return `you voted ${action.data.notification}`
+    case 'SET_NOTIFICATION':
+      return action.data
     
     case 'RESET_NOTIFICATION':
       return null
