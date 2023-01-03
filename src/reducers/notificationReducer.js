@@ -1,22 +1,38 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { useSelector } from 'react-redux'
 
 export const setNotification = (notification, time) => {
   return async (dispatch) => {
-    dispatch(notificationSlicer.actions.createNotification(notification))
-    setTimeout(() => 
-      dispatch(notificationSlicer.actions.resetNotification()), time*1000)
+    const timerID = setTimeout(() => 
+      dispatch(notificationSlicer.actions.resetNotification()), time*1000
+    )
+    const payload = {
+      info: notification,
+      timerID
+    }
+    dispatch(notificationSlicer.actions.createNotification(payload))
   }
 }
 
 const notificationSlicer = createSlice({
   name: 'notification',
-  initialState: null,
+  initialState: {
+    info: null,
+    timerID: null
+  },
   reducers: {
     createNotification(state, action) {
-      return action.payload
+      clearTimeout(state.timerID)
+      return {
+        info: action.payload.info,
+        timerID: action.payload.timerID
+      } 
     },
     resetNotification(state, action) {
-      return null
+      return {
+        info: null,
+        timerID: null
+      }
     }
   }
 })
