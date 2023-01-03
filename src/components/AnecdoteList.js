@@ -7,6 +7,7 @@ const AnecdoteList = () => {
   const filter = useSelector(state => state.filter).toLowerCase()
 
   const anecdotes = useSelector(state => state.anecdotes)
+    .slice()
     .sort((anecdote1, anecdote2) => anecdote2.votes - anecdote1.votes)
     .filter(anecdote => {return anecdote.content 
       ? anecdote.content.toLowerCase().includes(filter)
@@ -16,8 +17,8 @@ const AnecdoteList = () => {
   const dispatch = useDispatch()
 
   const vote = (anecdote) => {
-      dispatch(voteAnecdote(anecdote))
-      dispatch(setNotification(`you voted '${anecdote.content}'`, 5))
+    dispatch(voteAnecdote(anecdote))
+    dispatch(setNotification(`you voted '${anecdote.content}'`, 5))
   }
 
   return (

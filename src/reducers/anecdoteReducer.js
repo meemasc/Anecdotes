@@ -1,21 +1,27 @@
+import { createSlice } from '@reduxjs/toolkit'
 import anecdoteService from '../services/anecdotes'
 
 export const createAnecdote = (content) => {
   return async dispatch => {
     const newAnecdote = await anecdoteService.createNew(content)
     dispatch({
-      type: 'NEW_ANECDOTE',
-      data: newAnecdote
+      type: 'anecdotes/newAnecdote',
+      payload: newAnecdote
     })
   }
 }
 
 export const voteAnecdote = (anecdote) => {
   return async dispatch => {
-    await anecdoteService.increaseVote(anecdote)
+    const newAnecdote = {
+      ...anecdote, 
+      votes: anecdote.votes + 1 
+    }
+
+    await anecdoteService.updateAnecdote(newAnecdote)
     dispatch({
-      type: 'VOTE',
-      data: anecdote
+      type: 'anecdotes/changeAnecdote',
+      payload: newAnecdote
     })
   }
 }
@@ -24,36 +30,29 @@ export const initializeAnecdotes = () => {
   return async dispatch => {
     const anecdotes = await anecdoteService.getAll()
     dispatch({
-      type: 'INIT_NOTES',
-      data: anecdotes,
+      type: 'anecdotes/initAnecdotes',
+      payload: anecdotes
     })
   }
 }
 
-const anecdoteReducer = (state = [], action) => {
 
-  switch(action.type) {
-    case 'VOTE':
-      return state.map(anecdote => {
-        if(anecdote.id === action.data.id) {
-          return {
-            ...anecdote,
-            votes: anecdote.votes + 1
-          }
-        }else {
-          return anecdote
-        }
-      })
-    
-    case 'NEW_ANECDOTE':
-      return state.concat(action.data)
-    
-    case 'INIT_NOTES':
-      return action.data
-
-    default:
-      return state
+const anecdoteSlicer = createSlice({
+  name: 'anecdotes',
+  initialState: [],
+  reducers: {
+    initAnecdotes(state, action) {
+      return action.payload
+    },
+    newAnecdote(state, action) {
+      state.push(action.payload)
+    },
+    changeAnecdote(state, action) {
+      return state.map(anecdote => 
+       (anecdote.id === action.payload.id) ? action.payload : anecdote 
+      )
+    }
   }
-}
+})
 
-export default anecdoteReducer
+export default anecdoteSlicer.reducer
